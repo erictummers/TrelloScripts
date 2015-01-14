@@ -1,7 +1,8 @@
 TrelloScripts
 =============
 
-My Trello scripts to automate repetitive tasks
+My Trello scripts to automate repetitive tasks. 
+Visual Studio 2013 projects written in csharp.
 
 |Project|Description|
 |:-------|:-----------|
