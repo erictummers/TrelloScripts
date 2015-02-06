@@ -52,11 +52,16 @@ namespace CreateTrelloWeekBoard
             var todo = nextboard.Lists.Add("To Do");
 
             var email = GetEmailFromPrefs(nextboard.Id);
-            var card = todo.Cards.Add("Setup Email");
-            card.Description = string.Format("Use IFTTT with {0}", email);
+            var cardSetupEmail = todo.Cards.Add("Setup Email");
+            cardSetupEmail.Description = string.Format("Use IFTTT with {0}", email);
+
+            var createWeekboardName = string.Format("Create week {0} board", GetNextNextWeekNumber());
+            var cardCreateWeekboard = todo.Cards.Add(createWeekboardName);
+            cardCreateWeekboard.Description = "Run CreateTrelloWeekBoard script again on Friday";
 
             TrelloProcessor.Shutdown();
-            Console.WriteLine("Card {0} created on {1}", card.Name, card.List.Name);
+            Console.WriteLine("Card {0} created on {1}", cardSetupEmail.Name, cardSetupEmail.List.Name);
+            Console.WriteLine("Card {0} created on {1}", cardCreateWeekboard.Name, cardCreateWeekboard.List.Name);
 
             //var weeknr = GetCurrentWeekNumber();
             //var boardname = string.Format("week {0}", weeknr);
@@ -115,6 +120,10 @@ namespace CreateTrelloWeekBoard
         public static int GetNextWeekNumber()
         {
             return GetWeekNumber(Now.AddDays(7));
+        }
+        public static int GetNextNextWeekNumber()
+        {
+            return GetWeekNumber(Now.AddDays(14));
         }
         public static int GetWeekNumber(DateTime date)
         {
