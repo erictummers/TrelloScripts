@@ -39,7 +39,8 @@ namespace CreateTrelloWeekBoard
             var nextboardname = string.Format("week {0}", nextweeknr);
 
             var nextboard = Member.Me.Boards.Add(nextboardname);
-            nextboard.Description = "hello world";
+            nextboard.Description = "This board was generated with CreateTrelloWeekBoard from Eric Tummers\n" +
+                                    "Using Manatee.Trello to communicate with Trello";
             nextboard.Lists.Where(x => x.Name.Equals("to do", StringComparison.InvariantCultureIgnoreCase)).First().IsArchived = true;
             nextboard.Lists.Where(x => x.Name.Equals("done", StringComparison.InvariantCultureIgnoreCase)).First().IsArchived = true;
             nextboard.Lists.Where(x => x.Name.Equals("doing", StringComparison.InvariantCultureIgnoreCase)).First().IsArchived = true;
