@@ -39,7 +39,8 @@ namespace CreateTrelloWeekBoard
             var nextboardname = string.Format("week {0}", nextweeknr);
 
             var nextboard = Member.Me.Boards.Add(nextboardname);
-            nextboard.Description = "This board was generated with CreateTrelloWeekBoard from Eric Tummers\n" +
+            nextboard.Description = "This board was generated with CreateTrelloWeekBoard from " + 
+                                    "Eric Tummers (https://github.com/erictummers/trelloscripts)\n" +
                                     "Using Manatee.Trello to communicate with Trello";
             nextboard.Lists.Where(x => x.Name.Equals("to do", StringComparison.InvariantCultureIgnoreCase)).First().IsArchived = true;
             nextboard.Lists.Where(x => x.Name.Equals("done", StringComparison.InvariantCultureIgnoreCase)).First().IsArchived = true;
@@ -60,9 +61,12 @@ namespace CreateTrelloWeekBoard
             var cardCreateWeekboard = todo.Cards.Add(createWeekboardName);
             cardCreateWeekboard.Description = "Run CreateTrelloWeekBoard script again on Friday";
 
-            TrelloProcessor.Shutdown();
             Console.WriteLine("Card {0} created on {1}", cardSetupEmail.Name, cardSetupEmail.List.Name);
             Console.WriteLine("Card {0} created on {1}", cardCreateWeekboard.Name, cardCreateWeekboard.List.Name);
+
+            Console.Write("Shutting down ...");
+            TrelloProcessor.Shutdown();
+            Console.WriteLine(" done");
 
             //var weeknr = GetCurrentWeekNumber();
             //var boardname = string.Format("week {0}", weeknr);
