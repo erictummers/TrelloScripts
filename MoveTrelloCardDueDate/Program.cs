@@ -34,6 +34,8 @@ namespace MoveTrelloCardDueDate
                 {
                     // move to 20:00 on the same day
                     card.DueDate = card.DueDate.Value.Date.AddHours(20);
+                    // remove labels
+                    card.Labels.ToList().ForEach(x => card.Labels.Remove(x));
                 }
             }
             Console.Write("Saving {0} ...", board.Name);
