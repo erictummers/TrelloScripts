@@ -35,13 +35,21 @@ namespace CreateTrelloWeekBoard
             TrelloAuthorization.Default.AppKey = TrelloIds.AppKey;
             TrelloAuthorization.Default.UserToken = TrelloIds.UserToken;
 
+            var currentweeknr = GetCurrentWeekNumber();
+            var currentyear = GetCurrentYear().ToString();
+            var currentboardname = string.Format("week {0}", currentweeknr);
+            var currentboard = Member.Me.Boards.Where(x => x.Name.Equals(currentboardname, StringComparison.InvariantCultureIgnoreCase)
+                && x.Description.EndsWith(currentyear)).First();
+            var currentTodo = currentboard.Lists.Where(x => x.Name.Equals("to do", StringComparison.InvariantCultureIgnoreCase)).First();
+
             var nextweeknr = GetNextWeekNumber();
             var nextboardname = string.Format("week {0}", nextweeknr);
 
             var nextboard = Member.Me.Boards.Add(nextboardname);
             nextboard.Description = "This board was generated with CreateTrelloWeekBoard from " + 
                                     "Eric Tummers (https://github.com/erictummers/trelloscripts)\n" +
-                                    "Using Manatee.Trello to communicate with Trello";
+                                    "Using Manatee.Trello to communicate with Trello\n" +
+                                    GetNextWeekYear().ToString();
             nextboard.Lists.Where(x => x.Name.Equals("to do", StringComparison.InvariantCultureIgnoreCase)).First().IsArchived = true;
             nextboard.Lists.Where(x => x.Name.Equals("done", StringComparison.InvariantCultureIgnoreCase)).First().IsArchived = true;
             nextboard.Lists.Where(x => x.Name.Equals("doing", StringComparison.InvariantCultureIgnoreCase)).First().IsArchived = true;
@@ -51,14 +59,14 @@ namespace CreateTrelloWeekBoard
             nextboard.Lists.Add(GetTuesday());
             nextboard.Lists.Add(GetMonday());
             nextboard.Lists.Add("Doing");
-            var todo = nextboard.Lists.Add("To Do");
+            var nextTodo = nextboard.Lists.Add("To Do");
 
             var email = GetEmailFromPrefs(nextboard.Id);
-            var cardSetupEmail = todo.Cards.Add("Setup Email");
+            var cardSetupEmail = currentTodo.Cards.Add(string.Format("Setup Email for {0}", nextboard.Name));
             cardSetupEmail.Description = string.Format("Use IFTTT with {0}", email);
 
             var createWeekboardName = string.Format("Create week {0} board", GetNextNextWeekNumber());
-            var cardCreateWeekboard = todo.Cards.Add(createWeekboardName);
+            var cardCreateWeekboard = nextTodo.Cards.Add(createWeekboardName);
             cardCreateWeekboard.Description = "Run CreateTrelloWeekBoard script again on Friday";
 
             Console.WriteLine("Card {0} created on {1}", cardSetupEmail.Name, cardSetupEmail.List.Name);
@@ -87,6 +95,15 @@ namespace CreateTrelloWeekBoard
             //Console.WriteLine("Moved cards from {0}.{1} to {2}", board.Name, open.Name, nextboard.Name);
 
             Console.ReadLine();
+        }
+
+        public static int GetNextWeekYear()
+        {
+            return GetYear(Now.AddDays(7));
+        }
+        public static int GetCurrentYear()
+        {
+            return GetYear(Now);
         }
 
         // should report this to https://bitbucket.org/gregsdennis/manatee.trello
@@ -135,6 +152,10 @@ namespace CreateTrelloWeekBoard
             DateTimeFormatInfo dfi = DateTimeFormatInfo.CurrentInfo;
             Calendar cal = dfi.Calendar;
             return cal.GetWeekOfYear(date, dfi.CalendarWeekRule, dfi.FirstDayOfWeek);
+        }
+        public static int GetYear(DateTime date)
+        {
+            return date.Year;
         }
 
         public static string GetFriday()
