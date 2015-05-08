@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace CreateTrelloWeekBoard
 {
@@ -34,6 +35,7 @@ namespace CreateTrelloWeekBoard
             TrelloConfiguration.RestClientProvider = new RestSharpClientProvider();
             TrelloAuthorization.Default.AppKey = TrelloIds.AppKey;
             TrelloAuthorization.Default.UserToken = TrelloIds.UserToken;
+            Console.WriteLine("Initialized trello");
 
             var currentweeknr = GetCurrentWeekNumber();
             var currentyear = GetCurrentYear().ToString();
@@ -41,18 +43,22 @@ namespace CreateTrelloWeekBoard
             var currentboard = Member.Me.Boards.Where(x => x.Name.Equals(currentboardname, StringComparison.InvariantCultureIgnoreCase)
                 && x.Description.EndsWith(currentyear)).First();
             var currentTodo = currentboard.Lists.Where(x => x.Name.Equals("to do", StringComparison.InvariantCultureIgnoreCase)).First();
-
             var nextweeknr = GetNextWeekNumber();
             var nextboardname = string.Format("week {0}", nextweeknr);
+            Console.WriteLine("Variables set");
 
             var nextboard = Member.Me.Boards.Add(nextboardname);
             nextboard.Description = "This board was generated with CreateTrelloWeekBoard from " + 
                                     "Eric Tummers (https://github.com/erictummers/trelloscripts)\n" +
                                     "Using Manatee.Trello to communicate with Trello\n" +
                                     GetNextWeekYear().ToString();
+            Console.WriteLine("Created board '{0}'", nextboard);
+
+            // archive the default lists
             nextboard.Lists.Where(x => x.Name.Equals("to do", StringComparison.InvariantCultureIgnoreCase)).First().IsArchived = true;
             nextboard.Lists.Where(x => x.Name.Equals("done", StringComparison.InvariantCultureIgnoreCase)).First().IsArchived = true;
             nextboard.Lists.Where(x => x.Name.Equals("doing", StringComparison.InvariantCultureIgnoreCase)).First().IsArchived = true;
+            // add lists in order last to first
             nextboard.Lists.Add(GetFriday());
             nextboard.Lists.Add(GetThursday());
             nextboard.Lists.Add(GetWednesday());
@@ -60,6 +66,7 @@ namespace CreateTrelloWeekBoard
             nextboard.Lists.Add(GetMonday());
             nextboard.Lists.Add("Doing");
             var nextTodo = nextboard.Lists.Add("To Do");
+            Console.WriteLine("Created week lists");
 
             var email = GetEmailFromPrefs(nextboard.Id);
             var cardSetupEmail = currentTodo.Cards.Add(string.Format("Setup Email for {0}", nextboard.Name));
@@ -73,7 +80,8 @@ namespace CreateTrelloWeekBoard
             Console.WriteLine("Card {0} created on {1}", cardCreateWeekboard.Name, cardCreateWeekboard.List.Name);
 
             Console.Write("Shutting down ...");
-            TrelloProcessor.Shutdown();
+            var wait = TimeSpan.FromSeconds(10);
+            Task.Factory.StartNew(TrelloProcessor.Shutdown).Wait(wait);
             Console.WriteLine(" done");
 
             //var weeknr = GetCurrentWeekNumber();
