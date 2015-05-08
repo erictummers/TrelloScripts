@@ -31,11 +31,11 @@ namespace UpdateTrelloTrainingBoard
             var boardId = "SET_ME_TO_A_VALID_BOARDID";
             var board = new Board(boardId);
             Console.WriteLine(board.Name);
-            var todo = board.Lists.First(x => x.Name.Equals("Todo", StringComparison.InvariantCultureIgnoreCase));
+            var todo = board.Lists.First(x => x.Name.Equals("To do", StringComparison.InvariantCultureIgnoreCase));
             foreach (var card in board.Cards)
             {
                 // remove the label
-                if (card.Labels.Count() > 1) card.Labels.ToList().ForEach(x => { if (x.Color.HasValue) card.Labels.Remove(x.Color.Value); });
+                if (card.Labels.Count() > 1) card.Labels.ToList().ForEach(card.Labels.Remove);
                 // move to TODO 
                 if (false == card.List.Name.Equals(todo.Name)) card.List = todo;
                 // move the duedate
